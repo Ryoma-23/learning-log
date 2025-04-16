@@ -1,0 +1,24 @@
+# VS Code
+.vscode/
+
+# SQLツールの設定ファイル
+settings.json
+
+# 学習用メモ
+log.md
+
+# バーチャル環境
+venv/
+env/
+.venv/
+
+# Pythonキャッシュ
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 設定ファイルなど
+.env
+
+# macOS系
+.DS_Store
