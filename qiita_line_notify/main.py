@@ -6,15 +6,17 @@ load_dotenv()
 slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
 # Qiita APIから記事取得
-def get_qiita_articles(tag="python", per_page=3):
-    url = f"https://qiita.com/api/v2/tags/{tag}/items"
-    params = {"per_page": per_page}
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"エラー: {response.status_code}")
-        return []
+def get_qiita_articles(tags=["python"], per_page=3):
+    articles = []  #タグをリストとして取得
+    for tag in tags:
+        url = f"https://qiita.com/api/v2/tags/{tag}/items"
+        params = {"per_page": per_page}
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            articles.extend(response.json())
+        else:
+            print(f"エラー: {response.status_code} for tag {tag}")
+    return articles
 
 # Slackにメッセージ送信
 def send_slack_notification(message, webhook_url):
@@ -27,7 +29,8 @@ def send_slack_notification(message, webhook_url):
 
 # メイン処理
 if __name__ == "__main__":
-    articles = get_qiita_articles("python", 3)
+    tags = ["python", "AI"]  # 複数のタグを指定
+    articles = get_qiita_articles(tags, 6)
 
     if not articles:
         print("記事が取得できませんでした。")
