@@ -1,6 +1,6 @@
-import requests
+import requests # type: ignore
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv()
 slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
