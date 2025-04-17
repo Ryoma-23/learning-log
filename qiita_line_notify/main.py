@@ -6,17 +6,15 @@ load_dotenv()
 slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
 
 # Qiita APIから記事取得
-def get_qiita_articles(tags=["python"], per_page=3):
-    articles = []  #タグをリストとして取得
-    for tag in tags:
-        url = f"https://qiita.com/api/v2/tags/{tag}/items"
-        params = {"per_page": per_page}
-        response = requests.get(url, params=params)
-        if response.status_code == 200:
-            articles.extend(response.json())
-        else:
-            print(f"エラー: {response.status_code} for tag {tag}")
-    return articles
+def get_qiita_articles(tag="python", per_page=3):
+    url = f"https://qiita.com/api/v2/tags/{tag}/items"
+    params = {"per_page": per_page}
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"エラー ({tag}) : {response.status_code}")
+        return []
 
 # Slackにメッセージ送信
 def send_slack_notification(message, webhook_url):
@@ -52,24 +50,32 @@ def filter_new_articles(articles, notified_urls):
 
 # メイン処理
 if __name__ == "__main__":
-    tags = ["python", "AI"]  # 複数のタグを指定
-    articles = get_qiita_articles(tags, 3)
-
+    # 複数のタグを指定
+    tags = ["python", "AI"]
+    
     # 通知済みURLを読み込む
     notified_urls = load_notified_urls()
 
-    # 新しい記事と通知済みURLを分ける
-    new_articles, new_urls = filter_new_articles(articles, notified_urls)
+    all_new_urls = []
+    slack_message = ""
 
-    if not new_articles:
-        print("記事が取得できませんでした。")
-    else:
-        message = ":memo: *Qiita新着記事（#python）*\n"
-        for article in new_articles:
-            message += f"\n• <{article['url']}|{article['title']}>"
+    for tag in tags:
+        articles = get_qiita_articles(tag, 3)
+        
+        # 新しい記事と通知済みURLを分ける
+        new_articles, new_urls = filter_new_articles(articles, notified_urls)
 
-        send_slack_notification(message, slack_webhook_url)
+        if new_articles:
+            slack_message += f":label: *#{tag} の新着記事*\n"
+            for article in new_articles:
+                slack_message += f"• <{article['url']}|{article['title']}>\n"
+            all_new_urls.extend(new_urls)
+        else:
+            slack_message += f":label: *#{tag} の新規記事はありませんでした。*\n"
+    
+    if slack_message:
+        send_slack_notification(slack_message.strip(), slack_webhook_url)
         print("Slack通知を送りました ✅")
-
-        # 新しいURLを保存
-        save_notified_urls(new_urls)
+    
+    if all_new_urls:
+        save_notified_urls(all_new_urls)
