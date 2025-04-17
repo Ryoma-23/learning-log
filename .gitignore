@@ -22,3 +22,6 @@ __pycache__/
 
 # macOS系
 .DS_Store
+
+# 通知済みURLの保存用ファイル
+notified_urls.txt
