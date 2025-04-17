@@ -25,3 +25,6 @@ __pycache__/
 
 # 通知済みURLの保存用ファイル
 notified_urls.txt
+
+# README.md用画像
+images/

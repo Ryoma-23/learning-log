@@ -57,6 +57,8 @@ __pycache__/
 - 記事がない場合でもSlackに「通知する記事はありません」と送信
 - タグごとに記事をグループ化してSlackに投稿
 
+![Slack通知](./images/Slack_notification.png)
+
 ---
 
 ## 💻 実行例
