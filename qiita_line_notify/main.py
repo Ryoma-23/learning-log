@@ -60,7 +60,7 @@ if __name__ == "__main__":
     slack_message = ""
 
     for tag in tags:
-        articles = get_qiita_articles(tag, 3)
+        articles = get_qiita_articles(tag, 5)
         
         # 新しい記事と通知済みURLを分ける
         new_articles, new_urls = filter_new_articles(articles, notified_urls)
