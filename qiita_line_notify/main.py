@@ -92,6 +92,25 @@ def remove_old_blocks(text, keep_days=7):
 
     return "\n\n".join(kept_blocks)
 
+# 人気の記事を取得する
+def get_popular_qiita_articles(tag="python", per_page=20, min_likes=10, top_n=5):
+    query = f"tag:{tag} stocks:>={min_likes}"
+    url = "https://qiita.com/api/v2/items"
+    params = {
+        "per_page": per_page,
+        "page": 1,
+        "query": query
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        articles = response.json()
+        sorted_articles = sorted(articles, key=lambda x: x["likes_count"], reverse=True)
+        return sorted_articles[:top_n]
+    else:
+        print(f"人気記事の取得失敗 ({tag}): {response.status_code}")
+        return []
+
+
 # メイン処理
 if __name__ == "__main__":
     # 複数のタグを指定
@@ -104,8 +123,8 @@ if __name__ == "__main__":
     slack_message = ""
 
     for tag in tags:
+        # --- 新規記事の取得と通知 ---
         articles = get_qiita_articles(tag, 5)
-        
         # 新しい記事と通知済みURLを分ける
         new_articles, new_urls = filter_new_articles(articles, notified_urls)
 
@@ -116,10 +135,19 @@ if __name__ == "__main__":
             all_new_urls.extend(new_urls)
         else:
             slack_message += f":label: *#{tag} の新規記事はありませんでした。*\n"
+        
+        # --- 人気記事の取得と通知 ---
+        popular_articles = get_popular_qiita_articles(tag, per_page=20, min_likes=10, top_n=5)
+        if popular_articles:
+            slack_message += f"\n:star: *#{tag} の人気記事TOP{len(popular_articles)}*\n"
+            for i, article in enumerate(popular_articles, start=1):
+                slack_message += f"{i}. <{article['url']}|{article['title']}>（👍 {article['likes_count']}）\n"
     
+    # Slack通知を送信
     if slack_message:
         send_slack_notification(slack_message.strip(), slack_webhook_url)
         print("Slack通知を送りました ✅")
     
+    # 通知済みURLの保存
     if all_new_urls:
         save_notified_urls_with_date(all_new_urls)
