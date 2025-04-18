@@ -29,6 +29,9 @@ qiita_line_notify/
 ```bash
 python3 -m venv venv
 source venv/bin/activate
+# ↑仮想環境に入るためのコマンド
+deactivate
+# ↑仮想環境から出るためのコマンド
 ```
 2. 必要ライブラリのインストール
 ```bash
@@ -121,6 +124,7 @@ Slackに以下のようなメッセージが送信されます：
 ```bash
 launchctl load ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
 launchctl kickstart -k gui/$(id -u)/com.ryoma.qiita-notifier
+# ↑手動で自動実行を実行
 ```
 
 3. トラブルシューティング
