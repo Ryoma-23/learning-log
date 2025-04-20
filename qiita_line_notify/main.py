@@ -114,7 +114,7 @@ def get_popular_qiita_articles(tag="python", per_page=20, min_likes=10, top_n=5)
 # メイン処理
 if __name__ == "__main__":
     # 複数のタグを指定
-    tags = ["python", "AI"]
+    tags = ["python", "AI", "ChatGPT"]
     
     # 通知済みURLを読み込む
     notified_urls = load_notified_urls()
