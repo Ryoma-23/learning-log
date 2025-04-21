@@ -10,8 +10,9 @@
 - macOS
 - VS Code（エディタ）
 - Git / GitHub
+- Github actions
 - XAMPP（MariaDB）
-- Python 3.12.1
+- Python 3.11.7
 - SQLTools（VS Code拡張機能）
 
 ---
@@ -31,7 +32,14 @@ learning-log/
 ├── python/                # Pythonスクリプト
 │   ├── script.py          # 学習用スクリプト
 │   └── ...
-├── tools/                 # 自動化・ツール関連
+├── qiita_line_notify/     # 自動化・ツール関連
+│   ├── images/            # 画像保存場所
+│   ├── venv/              # Python仮想環境フォルダ（ローカル実行用）
+│   ├── .env               # 環境変数を定義
+│   ├── main.py            # メインスクリプト
+│   ├── notified_url.txt   # URL記録用（重複防止）
+│   ├── README.md          # スクリプトの詳細解説
+│   ├── requirements.txt   # 使用ライブラリを記載
 │   └── ...
 └── README.md              # このファイル
 ```
@@ -65,14 +73,43 @@ git pull origin main --no-rebase --allow-unrelated-histories
 
 ---
 
+## 🔔 Qiita記事のSlack通知ツール（qiita_line_notify）
+
+Qiitaの特定タグの新着記事を毎朝Slackに自動通知するスクリプトを作成しました。   
+PythonによるAPI連携・通知処理・重複排除、さらにGitHub Actionsを活用して毎日20時に自動実行しています。
+
+### 🧩 主な機能
+
+- Qiita APIを使って特定タグの新着記事を取得
+
+- SlackのIncoming Webhookで通知を送信
+
+- 通知済みURLをファイルで管理し、重複を防止
+
+- macOSのlaunchdを用いて、毎朝8時に自動実行（+手動実行も可能）
+
+- GitHub Actionsで毎日20時に自動実行（+手動実行も可能）（ローカル依存をなくす）
+
+### 🗂️ ディレクトリ構成（抜粋）
+```bash
+leaning-log/                # リポジトリ
+├── .github/workflows/
+│   └── notify.yml          # GitHub Actionsの設定ファイル
+└── qiita_line_notify/
+    ├── main.py             # 通知処理のメインスクリプト
+    ├── requirements.txt    # 使用ライブラリ
+    └── README.md           # スクリプトの詳細解説
+```
+
+---
+
 ## 学習記録やToDo
 
 ### 🗒️ 今後のToDo
 ```markdown
 - [x] SQL環境構築
 - [x] worldcup2014.sqlのインポート
-- [ ] SQL文の実行練習
+- [x] Qiita通知スクリプトの作成
+- [x] Slack通知の自動化（GitHub Actions）
 - [ ] PythonでDBアクセス
-- [ ] 自動化スクリプト作成
 ```
-
