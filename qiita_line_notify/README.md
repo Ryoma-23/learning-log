@@ -18,7 +18,7 @@ qiita_line_notify/
 ├── notified_urls.txt
 ├── venv/（仮想環境）
 └── com.ryoma.qiita-notifier.plist（launchd用）
-# plistは ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
+# plistは ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plistに作成
 ```
 
 ---
@@ -94,12 +94,12 @@ Slackに以下のようなメッセージが送信されます：
 
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/ryomaueda/learning-log/qiita_line_notify/venv/bin/python3</string>
-        <string>/Users/ryomaueda/learning-log/qiita_line_notify/main.py</string>
+        <string>/Users/username/learning-log/qiita_line_notify/venv/bin/python3</string>
+        <string>/Users/username/learning-log/qiita_line_notify/main.py</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/ryomaueda/learning-log/qiita_line_notify</string>
+    <string>/Users/username/learning-log/qiita_line_notify</string>
 
     <key>StartCalendarInterval</key>
     <dict>
@@ -176,11 +176,80 @@ GET https://qiita.com/api/v2/items?query=tag:python stocks:>=10
 
 ---
 
+## 🔥 追加機能：GitHub Actions による自動実行　（ローカル依存をなくす）
+
+### ✅ 概要
+
+このスクリプトは GitHub Actions により、毎日午後8時（JST）に自動実行されます。   
+また、GitHub 上から手動実行することも可能です。
+
+### 📂 フォルダ構成
+
+```bash
+leaning-log/  # リポジトリ
+├── .github/workflows/
+│   └── notify.yml  # GitHub Actionsの定義
+└── qiita_line_notify/
+    ├── main.py
+    ├── .env
+    └── requirements.txt
+```
+
+### ワークフロー設定（.github/workflows/notify.yml）
+
+```yaml
+name: Qiita Notify
+
+on:
+  schedule:
+    - cron: "0 11 * * *" # JSTで20時（UTCで11時）
+  workflow_dispatch: # 手動実行も可能にする
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r qiita_line_notify/requirements.txt
+
+      - name: Run notification script
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python qiita_line_notify/main.py
+```
+
+### :closed_lock_with_key: Secrets 設定
+- SLACK_WEBHOOK_URL は GitHub リポジトリの Settings > Secrets and variables > Actions にて設定します。
+
+### :pushpin: 手動実行方法
+
+1. GitHub のリポジトリにアクセス
+
+2. 「Actions」タブを開く
+
+3. 「Qiita Notify」ワークフローを選択
+
+4. 「Run workflow」ボタンをクリックして実行
+
+---
+
 ## 📌 今後の改善アイデア
 
 - 通知対象の記事にフィルタ（いいね数、公開日など）を追加【済】
 - 通知形式を装飾（絵文字、リッチ表示など）
-- GitHub Actionsなど他の自動化手段の導入
+- GitHub Actionsなど他の自動化手段の導入 【済】
 
 ---
 
