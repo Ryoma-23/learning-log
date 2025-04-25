@@ -245,6 +245,47 @@ jobs:
 
 ---
 
+## ⏸️ 自動実行の一時停止・再開方法（launchd / GitHub Actions）
+学習や検証を一時中断したい場合に、**再設定しやすい形で「一時停止・再開」**する方法をまとめています。
+
+### 🖥 Macローカル：launchd の一時停止・再開方法
+✅ 一時的に停止したいとき
+```bash
+launchctl unload ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
+```
+🔄 再開したいとき
+```bash
+launchctl load ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
+```
+💡 .plist ファイルを削除しなければ何度でも再開できます。   
+🚫 完全に削除したいとき
+```bash
+launchctl unload ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
+rm ~/Library/LaunchAgents/com.ryoma.qiita-notifier.plist
+```
+
+### ☁️ GitHub Actions：定期実行（schedule）の一時停止・再開
+✅ 一時的に停止したいとき   
+.github/workflows/notify.yml の該当箇所をコメントアウトします。
+```yaml
+on:
+  # schedule:
+  #   - cron: "0 11 * * *" # JSTで毎日20時に実行（UTC11時）
+  workflow_dispatch: # 手動実行は残す
+```
+🔄 再開したいとき   
+コメントアウトを戻して再有効化：
+```yaml
+on:
+  schedule:
+    - cron: "0 11 * * *" # JSTで毎日20時に実行（UTC11時）
+  workflow_dispatch: # 手動実行も可能
+```
+🚫 完全に無効にしたいとき   
+.github/workflows/notify.yml を削除、または名前を変更（例：notify.yml.disabled）してください。
+
+---
+
 ## 📌 今後の改善アイデア
 
 - 通知対象の記事にフィルタ（いいね数、公開日など）を追加【済】
